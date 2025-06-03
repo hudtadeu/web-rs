@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Container,
-  Typography,
   Button,
   Dialog,
   DialogTitle,
@@ -10,29 +9,43 @@ import {
   TextField,
   Grid,
   Chip,
-  Avatar,
   MenuItem,
   IconButton,
   Tooltip,
-  Paper
+  Paper,
+  Typography,
+  InputAdornment
 } from "@mui/material";
 import {
   Add,
   CalendarToday,
-  Edit,
   Delete,
-  CheckCircle,
-  Warning,
-  Error
+  Edit,
+  Search,
+  Close
 } from "@mui/icons-material";
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'moment/locale/pt-br'; // Adiciona o locale pt-br ao moment
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import moment from "moment";
+import "moment/locale/pt-br";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
-moment.locale('pt-br'); // Define o locale globalmente
-
+moment.locale("pt-br");
 const localizer = momentLocalizer(moment);
+
+const STATUS_OPTIONS = [
+  { value: "pendente", label: "Pendente", color: "warning" },
+  { value: "agendado", label: "Agendado", color: "info" },
+  { value: "concluído", label: "Concluído", color: "success" },
+  { value: "atrasado", label: "Atrasado", color: "error" }
+];
+
+const TIPO_OPTIONS = [
+  "Rotina",
+  "Mensal",
+  "Trimestral",
+  "Anual",
+  "Extraordinária"
+];
 
 const AgendaInspecoes = () => {
   const [events, setEvents] = useState([
@@ -44,7 +57,8 @@ const AgendaInspecoes = () => {
       status: "pendente",
       responsavel: "João Silva",
       tipo: "Rotina",
-      local: "Área de Produção"
+      local: "Área de Produção",
+      descricao: "Verificar todos os EPIs dos funcionários."
     },
     {
       id: "2",
@@ -54,46 +68,75 @@ const AgendaInspecoes = () => {
       status: "agendado",
       responsavel: "Maria Souza",
       tipo: "Mensal",
-      local: "Corredores"
+      local: "Corredores",
+      descricao: "Checar validade e funcionamento dos extintores."
     }
   ]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [newEvent, setNewEvent] = useState({ 
-    title: "", 
-    start: moment().format('YYYY-MM-DDTHH:mm'),
-    end: moment().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    start: moment().format("YYYY-MM-DDTHH:mm"),
+    end: moment().add(1, "hour").format("YYYY-MM-DDTHH:mm"),
     status: "pendente",
     responsavel: "",
     tipo: "",
-    local: ""
+    local: "",
+    descricao: ""
   });
+  const [search, setSearch] = useState("");
+  const [view, setView] = useState(Views.MONTH);
+  const [date, setDate] = useState(new Date());
 
-  const handleSlotSelect = (slotInfo) => {
+  // Pesquisa filtrada
+  const filteredEvents = useMemo(() => {
+    if (!search) return events;
+    return events.filter(
+      evt =>
+        evt.title.toLowerCase().includes(search.toLowerCase()) ||
+        (evt.responsavel && evt.responsavel.toLowerCase().includes(search.toLowerCase())) ||
+        (evt.local && evt.local.toLowerCase().includes(search.toLowerCase())) ||
+        (evt.tipo && evt.tipo.toLowerCase().includes(search.toLowerCase()))
+    );
+  }, [events, search]);
+
+  // Cores por status
+  const getStatusColor = status =>
+    STATUS_OPTIONS.find(opt => opt.value === status)?.color || "primary";
+
+  // Ao clicar em slot vazio
+  const handleSlotSelect = slotInfo => {
     setNewEvent({
-      ...newEvent,
-      start: moment(slotInfo.start).format('YYYY-MM-DDTHH:mm'),
-      end: moment(slotInfo.end).format('YYYY-MM-DDTHH:mm')
+      title: "",
+      start: moment(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
+      end: moment(slotInfo.end).format("YYYY-MM-DDTHH:mm"),
+      status: "pendente",
+      responsavel: "",
+      tipo: "",
+      local: "",
+      descricao: ""
     });
     setSelectedEvent(null);
     setModalOpen(true);
   };
 
-  const handleEventSelect = (event) => {
+  // Ao clicar em evento
+  const handleEventSelect = event => {
     setSelectedEvent(event);
     setNewEvent({
       title: event.title,
-      start: moment(event.start).format('YYYY-MM-DDTHH:mm'),
-      end: moment(event.end).format('YYYY-MM-DDTHH:mm'),
+      start: moment(event.start).format("YYYY-MM-DDTHH:mm"),
+      end: moment(event.end).format("YYYY-MM-DDTHH:mm"),
       status: event.status,
       responsavel: event.responsavel,
       tipo: event.tipo,
-      local: event.local
+      local: event.local,
+      descricao: event.descricao || ""
     });
     setModalOpen(true);
   };
 
+  // Salvar novo/editar evento
   const handleSave = () => {
     const eventData = {
       id: selectedEvent ? selectedEvent.id : String(Date.now()),
@@ -103,30 +146,29 @@ const AgendaInspecoes = () => {
       status: newEvent.status,
       responsavel: newEvent.responsavel,
       tipo: newEvent.tipo,
-      local: newEvent.local
+      local: newEvent.local,
+      descricao: newEvent.descricao
     };
-
     if (selectedEvent) {
-      setEvents(events.map(evt => 
-        evt.id === selectedEvent.id ? eventData : evt
-      ));
+      setEvents(events.map(evt => (evt.id === selectedEvent.id ? eventData : evt)));
     } else {
       setEvents([...events, eventData]);
     }
-
     setModalOpen(false);
     setSelectedEvent(null);
-    setNewEvent({ 
-      title: "", 
-      start: moment().format('YYYY-MM-DDTHH:mm'),
-      end: moment().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
+    setNewEvent({
+      title: "",
+      start: moment().format("YYYY-MM-DDTHH:mm"),
+      end: moment().add(1, "hour").format("YYYY-MM-DDTHH:mm"),
       status: "pendente",
       responsavel: "",
       tipo: "",
-      local: ""
+      local: "",
+      descricao: ""
     });
   };
 
+  // Excluir evento
   const handleDelete = () => {
     if (selectedEvent) {
       setEvents(events.filter(evt => evt.id !== selectedEvent.id));
@@ -135,103 +177,153 @@ const AgendaInspecoes = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'pendente': return 'warning';
-      case 'concluído': return 'success';
-      case 'atrasado': return 'error';
-      case 'agendado': return 'info';
-      default: return 'primary';
-    }
+  // Arrastar evento
+  const handleEventDrop = ({ event, start, end }) => {
+    setEvents(events.map(evt =>
+      evt.id === event.id ? { ...evt, start, end } : evt
+    ));
   };
 
+  // Redimensionar evento
+  const handleEventResize = ({ event, start, end }) => {
+    setEvents(events.map(evt =>
+      evt.id === event.id ? { ...evt, start, end } : evt
+    ));
+  };
+
+  // Renderização customizada do evento
   const EventComponent = ({ event }) => (
-    <div style={{ padding: '2px 0' }}>
+    <Tooltip title={
+      <div>
+        <strong>{event.title}</strong><br />
+        {event.responsavel && <>Resp.: {event.responsavel}<br /></>}
+        {event.local && <>Local: {event.local}<br /></>}
+        {event.tipo && <>Tipo: {event.tipo}<br /></>}
+        {event.descricao && <>Desc.: {event.descricao}</>}
+      </div>
+    } arrow>
       <Chip
         size="small"
         label={event.title}
         color={getStatusColor(event.status)}
-        sx={{ mb: 0.5 }}
+        sx={{ mb: 0.5, fontWeight: 500 }}
       />
-      <div style={{ fontSize: '0.8em' }}>
-        {event.responsavel}
-      </div>
-    </div>
+    </Tooltip>
+  );
+
+  // Barra de pesquisa
+  const SearchBar = (
+    <TextField
+      variant="outlined"
+      size="small"
+      placeholder="Pesquisar eventos..."
+      value={search}
+      onChange={e => setSearch(e.target.value)}
+      sx={{ minWidth: 250, mr: 2 }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <Search />
+          </InputAdornment>
+        ),
+        endAdornment: search && (
+          <IconButton size="small" onClick={() => setSearch("")}>
+            <Close />
+          </IconButton>
+        )
+      }}
+    />
   );
 
   return (
-    <Container maxWidth="lg">
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-        <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+    <Container maxWidth="xl">
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 2 }}>
+        <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
           <Grid item>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-              <CalendarToday sx={{ verticalAlign: 'middle', mr: 1 }} />
-              Agenda de Inspeções
+            {/* Removido o título e subtítulo */}
+            {/* 
+            <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
+              <CalendarToday sx={{ verticalAlign: "middle", mr: 1 }} />
+              Agenda Completa
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
-              Controle de inspeções de segurança do trabalho
+              Visualização avançada de inspeções e compromissos
             </Typography>
+            */}
           </Grid>
           <Grid item>
-            <Button 
-              variant="contained" 
+            {SearchBar}
+            <Button
+              variant="contained"
               startIcon={<Add />}
               onClick={() => {
                 setSelectedEvent(null);
                 setModalOpen(true);
               }}
-              sx={{ borderRadius: '8px' }}
+              sx={{ borderRadius: "8px" }}
             >
-              Nova Inspeção
+              Novo Evento
             </Button>
           </Grid>
         </Grid>
-
-        {/* Ajuste da altura do calendário para não sobrepor menus */}
-        <div style={{ height: 'calc(70vh - 64px)' }}>
+        {/* Altere a altura aqui */}
+        <div style={{ height: "70vh" }}>
           <Calendar
             localizer={localizer}
-            events={events}
+            events={filteredEvents}
             startAccessor="start"
             endAccessor="end"
             selectable
+            resizable
             onSelectSlot={handleSlotSelect}
             onSelectEvent={handleEventSelect}
+            onEventDrop={handleEventDrop}
+            onEventResize={handleEventResize}
+            draggableAccessor={() => true}
             components={{
               event: EventComponent
             }}
             messages={{
-              today: 'Hoje',
-              previous: 'Anterior',
-              next: 'Próximo',
-              month: 'Mês',
-              week: 'Semana',
-              day: 'Dia',
-              agenda: 'Agenda',
-              date: 'Data',
-              time: 'Hora',
-              event: 'Evento',
-              noEventsInRange: 'Nenhuma inspeção neste período.'
+              today: "Hoje",
+              previous: "Anterior",
+              next: "Próximo",
+              month: "Mês",
+              week: "Semana",
+              work_week: "Semana de trabalho",
+              day: "Dia",
+              agenda: "Agenda",
+              date: "Data",
+              time: "Hora",
+              event: "Evento",
+              allDay: "Dia todo",
+              noEventsInRange: "Nenhum evento neste período.",
+              showMore: total => `+${total} mais`
             }}
             popup
-            views={['month', 'week', 'day', 'agenda']}
+            views={["month", "week", "day", "agenda"]}
             culture="pt-BR"
+            view={view}
+            onView={setView}
+            date={date}
+            onNavigate={setDate}
+            style={{ background: "#fff", borderRadius: 8 }}
           />
         </div>
       </Paper>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {selectedEvent ? 'Editar Inspeção' : 'Nova Inspeção'}
+          {selectedEvent ? "Editar Evento" : "Novo Evento"}
         </DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Título da Inspeção"
+                label="Título"
                 value={newEvent.title}
-                onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
+                required
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -240,10 +332,9 @@ const AgendaInspecoes = () => {
                 label="Data e Hora Início"
                 type="datetime-local"
                 value={newEvent.start}
-                onChange={(e) => setNewEvent({...newEvent, start: e.target.value})}
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                onChange={e => setNewEvent({ ...newEvent, start: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+                required
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -252,10 +343,9 @@ const AgendaInspecoes = () => {
                 label="Data e Hora Fim"
                 type="datetime-local"
                 value={newEvent.end}
-                onChange={(e) => setNewEvent({...newEvent, end: e.target.value})}
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                onChange={e => setNewEvent({ ...newEvent, end: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+                required
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -263,7 +353,7 @@ const AgendaInspecoes = () => {
                 fullWidth
                 label="Responsável"
                 value={newEvent.responsavel}
-                onChange={(e) => setNewEvent({...newEvent, responsavel: e.target.value})}
+                onChange={e => setNewEvent({ ...newEvent, responsavel: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -272,11 +362,11 @@ const AgendaInspecoes = () => {
                 fullWidth
                 label="Status"
                 value={newEvent.status}
-                onChange={(e) => setNewEvent({...newEvent, status: e.target.value})}
+                onChange={e => setNewEvent({ ...newEvent, status: e.target.value })}
               >
-                {['pendente', 'agendado', 'concluído', 'atrasado'].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                {STATUS_OPTIONS.map(option => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
                   </MenuItem>
                 ))}
               </TextField>
@@ -286,30 +376,40 @@ const AgendaInspecoes = () => {
                 fullWidth
                 label="Local"
                 value={newEvent.local}
-                onChange={(e) => setNewEvent({...newEvent, local: e.target.value})}
+                onChange={e => setNewEvent({ ...newEvent, local: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 select
                 fullWidth
-                label="Tipo de Inspeção"
+                label="Tipo"
                 value={newEvent.tipo}
-                onChange={(e) => setNewEvent({...newEvent, tipo: e.target.value})}
+                onChange={e => setNewEvent({ ...newEvent, tipo: e.target.value })}
               >
-                {['Rotina', 'Mensal', 'Trimestral', 'Anual', 'Extraordinária'].map((option) => (
+                {TIPO_OPTIONS.map(option => (
                   <MenuItem key={option} value={option}>
                     {option}
                   </MenuItem>
                 ))}
               </TextField>
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Descrição"
+                value={newEvent.descricao}
+                onChange={e => setNewEvent({ ...newEvent, descricao: e.target.value })}
+                multiline
+                minRows={2}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           {selectedEvent && (
-            <Button 
-              onClick={handleDelete} 
+            <Button
+              onClick={handleDelete}
               color="error"
               startIcon={<Delete />}
             >
@@ -317,12 +417,13 @@ const AgendaInspecoes = () => {
             </Button>
           )}
           <Button onClick={() => setModalOpen(false)}>Cancelar</Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             variant="contained"
             disabled={!newEvent.title}
+            startIcon={<Edit />}
           >
-            {selectedEvent ? 'Salvar' : 'Adicionar'}
+            {selectedEvent ? "Salvar" : "Adicionar"}
           </Button>
         </DialogActions>
       </Dialog>

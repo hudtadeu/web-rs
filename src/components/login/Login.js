@@ -1,8 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Box, Card, CardContent, Typography, TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { faBarChart } from "@fortawesome/free-solid-svg-icons";
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, setSelectedMenu }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,6 +25,9 @@ const Login = ({ onLogin }) => {
 
     if (username === "admin" && password === "admin") {
       localStorage.setItem('isAuthenticated', 'true');
+      if (setSelectedMenu) {
+        setSelectedMenu({ text: "Dashboard", icon: faBarChart });
+      }
       onLogin(); 
       navigate("/dashboard"); // Redireciona para o Dashboard após login
     } else {

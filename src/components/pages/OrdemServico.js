@@ -258,7 +258,6 @@ const OrdemServico = () => {
             />
           </Grid>
         </Grid>
-
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
           <Button variant="contained" color="primary" onClick={handleSubmit}>
             Salvar Ordem de Serviço
