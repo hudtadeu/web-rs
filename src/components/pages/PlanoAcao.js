@@ -72,14 +72,9 @@ const PlanoAcao = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // Funções auxiliares
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Feito': return 'success';
-      case 'Fazendo': return 'warning';
-      case 'Pendente': return 'error';
-      default: return 'default';
-    }
-  };
+  const getStatusColor = (status) => (
+    { Feito: 'success', Fazendo: 'warning', Pendente: 'error' }[status] || 'default'
+  );
 
   const handleOpenAddDialog = () => {
     setCurrentActivity({
@@ -171,45 +166,72 @@ const PlanoAcao = () => {
         
         <Divider sx={{ my: 2 }} />
         
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="Plano de Ação">
+        <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2, boxShadow: 2 }}>
+          <Table sx={{ minWidth: 700 }} aria-label="Plano de Ação">
             <TableHead>
-              <TableRow>
-                <TableCell><strong>O quê? (What?)</strong></TableCell>
-                <TableCell><strong>Quem? (Who?)</strong></TableCell>
-                <TableCell><strong>Quando? (When?)</strong></TableCell>
-                <TableCell><strong>Como? (How?)</strong></TableCell>
-                <TableCell><strong>Custo? (How much?)</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell><strong>Ações</strong></TableCell>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell sx={{ fontWeight: 'bold', width: '18%' }}><strong>O quê?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '13%' }}><strong>Quem?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Quando?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '20%' }}><strong>Como?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '15%' }}><strong>Custo?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '10%' }}><strong>Status</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Ações</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {planData.atividades.map((atividade) => (
-                <TableRow key={atividade.id}>
-                  <TableCell>{atividade.oque}</TableCell>
-                  <TableCell>{atividade.quem}</TableCell>
-                  <TableCell>{atividade.quando}</TableCell>
-                  <TableCell>{atividade.como}</TableCell>
-                  <TableCell>{atividade.custo}</TableCell>
-                  <TableCell>
+              {planData.atividades.map((atividade, idx) => (
+                <TableRow
+                  key={atividade.id}
+                  sx={{
+                    backgroundColor: idx % 2 === 0 ? '#fafafa' : '#fff',
+                    '&:hover': { backgroundColor: '#f0f7fa' }
+                  }}
+                >
+                  <TableCell sx={{ py: 1.5 }}>{atividade.oque}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.quem}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.quando}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.como}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.custo}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>
                     <Chip 
                       label={atividade.status} 
                       color={getStatusColor(atividade.status)} 
-                      size="small" 
+                      size="small"
+                      sx={{ fontWeight: 'bold', minWidth: 70, justifyContent: 'center' }}
                     />
                   </TableCell>
-                  <TableCell>
-                    <Tooltip title="Editar">
-                      <IconButton onClick={() => handleOpenEditDialog(atividade)}>
-                        <EditIcon color="primary" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Excluir">
-                      <IconButton onClick={() => handleDeleteActivity(atividade.id)}>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
+                  <TableCell sx={{ py: 1.5 }}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Tooltip title="Editar">
+                        <IconButton
+                          onClick={() => handleOpenEditDialog(atividade)}
+                          size="small"
+                          sx={{
+                            bgcolor: '#e3f2fd',
+                            '&:hover': { bgcolor: '#bbdefb' },
+                            borderRadius: 2,
+                            p: 0.5
+                          }}
+                        >
+                          <EditIcon color="primary" fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Excluir">
+                        <IconButton
+                          onClick={() => handleDeleteActivity(atividade.id)}
+                          size="small"
+                          sx={{
+                            bgcolor: '#ffebee',
+                            '&:hover': { bgcolor: '#ffcdd2' },
+                            borderRadius: 2,
+                            p: 0.5
+                          }}
+                        >
+                          <DeleteIcon color="error" fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -220,41 +242,46 @@ const PlanoAcao = () => {
 
       {/* Dialog para adicionar/editar atividades */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
+        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
           {isEditing ? 'Editar Atividade' : 'Adicionar Nova Atividade'}
         </DialogTitle>
-        <DialogContent dividers>
-          <Box component="form" sx={{ pt: 1 }}>
+        <DialogContent dividers sx={{ bgcolor: '#fafafa' }}>
+          <Box component="form" sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               fullWidth
-              label="O quê? (What?)"
+              label="O quê?"
               name="oque"
               value={currentActivity?.oque || ''}
               onChange={handleInputChange}
               margin="normal"
               required
+              sx={{ bgcolor: '#fff', borderRadius: 1 }}
             />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="Quem?"
+                name="quem"
+                value={currentActivity?.quem || ''}
+                onChange={handleInputChange}
+                margin="normal"
+                required
+                sx={{ bgcolor: '#fff', borderRadius: 1 }}
+              />
+              <TextField
+                fullWidth
+                label="Quando?"
+                name="quando"
+                value={currentActivity?.quando || ''}
+                onChange={handleInputChange}
+                margin="normal"
+                required
+                sx={{ bgcolor: '#fff', borderRadius: 1 }}
+              />
+            </Box>
             <TextField
               fullWidth
-              label="Quem? (Who?)"
-              name="quem"
-              value={currentActivity?.quem || ''}
-              onChange={handleInputChange}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Quando? (When?)"
-              name="quando"
-              value={currentActivity?.quando || ''}
-              onChange={handleInputChange}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Como? (How?)"
+              label="Como?"
               name="como"
               value={currentActivity?.como || ''}
               onChange={handleInputChange}
@@ -262,34 +289,40 @@ const PlanoAcao = () => {
               required
               multiline
               rows={2}
+              sx={{ bgcolor: '#fff', borderRadius: 1 }}
             />
-            <TextField
-              fullWidth
-              label="Custo? (How much?)"
-              name="custo"
-              value={currentActivity?.custo || ''}
-              onChange={handleInputChange}
-              margin="normal"
-            />
-            <TextField
-              select
-              fullWidth
-              label="Status"
-              name="status"
-              value={currentActivity?.status || 'Pendente'}
-              onChange={handleInputChange}
-              margin="normal"
-            >
-              <MenuItem value="Pendente">Pendente</MenuItem>
-              <MenuItem value="Fazendo">Fazendo</MenuItem>
-              <MenuItem value="Feito">Feito</MenuItem>
-            </TextField>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="Custo?"
+                name="custo"
+                value={currentActivity?.custo || ''}
+                onChange={handleInputChange}
+                margin="normal"
+                sx={{ bgcolor: '#fff', borderRadius: 1 }}
+              />
+              <TextField
+                select
+                fullWidth
+                label="Status"
+                name="status"
+                value={currentActivity?.status || 'Pendente'}
+                onChange={handleInputChange}
+                margin="normal"
+                sx={{ bgcolor: '#fff', borderRadius: 1 }}
+              >
+                <MenuItem value="Pendente">Pendente</MenuItem>
+                <MenuItem value="Fazendo">Fazendo</MenuItem>
+                <MenuItem value="Feito">Feito</MenuItem>
+              </TextField>
+            </Box>
           </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ bgcolor: '#f5f5f5', px: 3, py: 2 }}>
           <Button 
             startIcon={<CancelIcon />} 
             onClick={handleCloseDialog}
+            sx={{ borderRadius: 2 }}
           >
             Cancelar
           </Button>
@@ -298,6 +331,7 @@ const PlanoAcao = () => {
             onClick={handleSaveActivity}
             variant="contained"
             color="primary"
+            sx={{ borderRadius: 2, fontWeight: 'bold' }}
           >
             Salvar
           </Button>
