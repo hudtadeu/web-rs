@@ -76,11 +76,13 @@ const OrdemServico = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel>Prioridade</InputLabel>
+              <InputLabel id="prioridade-label">Prioridade</InputLabel>
               <Select
+                labelId="prioridade-label"
                 name="prioridade"
                 value={formData.prioridade}
                 onChange={handleChange}
+                label="Prioridade"
               >
                 <MenuItem value="Urgente">Urgente</MenuItem>
                 <MenuItem value="Alta">Alta</MenuItem>
@@ -225,11 +227,13 @@ const OrdemServico = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
+              <InputLabel id="status-label">Status</InputLabel>
               <Select
+                labelId="status-label"
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
+                label="Status"
               >
                 <MenuItem value="Aberto">Aberto</MenuItem>
                 <MenuItem value="Em andamento">Em andamento</MenuItem>
