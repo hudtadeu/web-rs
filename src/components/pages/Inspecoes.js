@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 
+
 // Templates de perguntas por tipo de inspeção
 const initialTemplates = {
   seguranca: {
@@ -355,20 +356,35 @@ const Inspecoes = () => {
 
       <Paper sx={{ mt:3, p:2 }}>
         <Typography variant="h6">Histórico de Inspeções</Typography>
-        {inspecoes.map(ins => (
-          <Paper key={ins.id} sx={{ mb:2, p:1, bgcolor:'#f9f9f9' }}>
-            <Typography><strong>ID:</strong> {ins.id}</Typography>
-            <Typography><strong>Tipo:</strong> {templates[ins.type]?.label}</Typography>
-            <Typography variant="subtitle2" sx={{ mt:1 }}>Respostas:</Typography>
-            <ul>
-              {templates[ins.type].verificacoes.map((q, idx) => (
-                <li key={idx}>
-                  <strong>{q}</strong>: {ins.verificacoes[idx] || '---'} — {ins.corretivas[idx] || '---'}
-                </li>
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Tipo</TableCell>
+                <TableCell>Tópico</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {inspecoes.map(ins => (
+                templates[ins.type]?.verificacoes.map((q, idx) => (
+                  <TableRow key={`${ins.id}-${idx}`}>
+                    <TableCell>{ins.id}</TableCell>
+                    <TableCell>{templates[ins.type]?.label}</TableCell>
+                    <TableCell>{q}</TableCell>
+                    <TableCell>
+                      {ins.verificacoes[idx] === 'C' && 'Conforme'}
+                      {ins.verificacoes[idx] === 'NC' && 'Não Conforme'}
+                      {ins.verificacoes[idx] === 'NA' && 'Não se aplica'}
+                      {!ins.verificacoes[idx] && '---'}
+                    </TableCell>
+                  </TableRow>
+                ))
               ))}
-            </ul>
-          </Paper>
-        ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );
