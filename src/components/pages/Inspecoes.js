@@ -65,6 +65,16 @@ const Inspecoes = () => {
   const reset = () => setForm({ type:'', verificacoes:[], catRisco:[], obsVerif:[], anexoVerif:[], acaoImediata:'' });
   const saveInspecao = () => {
     setInspecoes(prev => [{ id: Date.now(), ...form }, ...prev]);
+    const actions = form.verificacoes
+    .map((resp, idx) => ({
+      pergunta: templates[form.type].verificacoes[idx],
+      resposta: resp
+    }))
+    .filter(item => item.resposta === 'NC');
+
+  // Persiste plano de ação no localStorage
+  const existing = JSON.parse(localStorage.getItem('planActions') || '[]');
+  localStorage.setItem('planActions', JSON.stringify([...existing, ...actions]));
     reset();
     setOpen(false);
   };

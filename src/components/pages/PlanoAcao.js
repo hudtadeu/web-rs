@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -67,11 +67,32 @@ const PlanoAcao = () => {
     ]
   });
 
+  
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('planActions') || '[]');
+    setPlanData(prev => ({
+      ...prev,
+      atividades: [
+        ...prev.atividades,
+        ...saved.map((item, idx) => ({
+          id: Date.now() + idx,
+          oque: item.pergunta,
+          responsavel: '',    // preencher conforme necessidade
+          quando: '',         // ...
+          como: '',           // ...
+          custo: '',
+          status: 'Pendente'
+        }))
+      ]
+    }));
+    localStorage.removeItem('planActions'); // opcional: limpa após uso
+  }, []);
+  
   const [openDialog, setOpenDialog] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Funções auxiliares
+  // FunÃ§Ãµes auxiliares
   const getStatusColor = (status) => (
     { Feito: 'success', Fazendo: 'warning', Pendente: 'error' }[status] || 'default'
   );
@@ -341,4 +362,4 @@ const PlanoAcao = () => {
   );
 };
 
-export default PlanoAcao;
+export default PlanoAcao;
