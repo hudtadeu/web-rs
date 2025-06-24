@@ -263,6 +263,33 @@ const Indicadores = () => {
     },
   ];
   
+  // Dados fictícios de equipamentos a vencer
+  const equipamentosAVencer = [
+    {
+      equipamento: "Cinto de Segurança",
+      validade: "2024-07-10",
+      setor: "Manutenção",
+      responsavel: "Lucas Pereira",
+    },
+    {
+      equipamento: "Protetor Auricular",
+      validade: "2024-07-15",
+      setor: "Produção",
+      responsavel: "Mariana Costa",
+    },
+    {
+      equipamento: "Botina Antiderrapante",
+      validade: "2024-07-20",
+      setor: "Logística",
+      responsavel: "Rafael Souza",
+    },
+    {
+      equipamento: "Máscara PFF2",
+      validade: "2024-07-25",
+      setor: "Laboratório",
+      responsavel: "Juliana Alves",
+    },
+  ];
 
   return (
     <Box sx={{ padding: "16px",  mt: "-20px", }}>
@@ -631,6 +658,55 @@ const Indicadores = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Nova seção: Equipamentos a vencer */}
+      <Grid container spacing={3} sx={{ marginTop: "24px" }}>
+        <Grid item xs={12}>
+          <Card
+            sx={{
+              padding: "24px",
+              borderRadius: "16px",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+              background: "linear-gradient(to bottom, #fffbe6, #fffde7)",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                fontSize: "1rem",
+                color: "#b26a00",
+                marginBottom: "16px",
+              }}
+            >
+              Equipamentos a Vencer
+            </Typography>
+            <TableContainer component={Paper} sx={useStyles.tableContainer}>
+              <Table>
+                <TableHead sx={{ ...useStyles.tableHeader, backgroundColor: "#ffc107" }}>
+                  <TableRow>
+                    <TableCell sx={useStyles.tableHeaderCell}>Equipamento</TableCell>
+                    <TableCell sx={useStyles.tableHeaderCell}>Data de Validade</TableCell>
+                    <TableCell sx={useStyles.tableHeaderCell}>Setor</TableCell>
+                    <TableCell sx={useStyles.tableHeaderCell}>Responsável</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {equipamentosAVencer.map((row, index) => (
+                    <TableRow key={index} sx={useStyles.tableRow}>
+                      <TableCell sx={useStyles.tableCell}>{row.equipamento}</TableCell>
+                      <TableCell sx={useStyles.tableCell}>{row.validade}</TableCell>
+                      <TableCell sx={useStyles.tableCell}>{row.setor}</TableCell>
+                      <TableCell sx={useStyles.tableCell}>{row.responsavel}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </Grid>
+      </Grid>
+      
       </Grid>
     </Box>
   );
