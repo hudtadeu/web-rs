@@ -374,9 +374,15 @@ const Inspecoes = () => {
                     <TableCell>{templates[ins.type]?.label}</TableCell>
                     <TableCell>{q}</TableCell>
                     <TableCell>
-                      {ins.verificacoes[idx] === 'C' && 'Conforme'}
-                      {ins.verificacoes[idx] === 'NC' && 'Não Conforme'}
-                      {ins.verificacoes[idx] === 'NA' && 'Não se aplica'}
+                      {ins.verificacoes[idx] === 'C' && (
+                        <span style={{ color: '#388e3c', fontWeight: 'bold' }}>Conforme</span>
+                      )}
+                      {ins.verificacoes[idx] === 'NC' && (
+                        <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>Não Conforme</span>
+                      )}
+                      {ins.verificacoes[idx] === 'NA' && (
+                        <span style={{ color: '#fbc02d', fontWeight: 'bold' }}>Não se aplica</span>
+                      )}
                       {!ins.verificacoes[idx] && '---'}
                     </TableCell>
                   </TableRow>
