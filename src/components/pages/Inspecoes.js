@@ -202,7 +202,7 @@ const Inspecoes = () => {
   return (
     <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       <Typography variant="h4">Inspeções</Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, overflowX: "unset" }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2}}>
         <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
           Nova Inspeção
         </Button>

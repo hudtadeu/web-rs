@@ -35,7 +35,7 @@ const PlanoAcao = () => {
     assunto: "Solicitar Consultoria em Produtividade",
     dataPrevisao: "de 03/Jan a 01/Mar",
     responsavel: "Setor Administrativo/Financeiro",
-    objetivo: "Facilitar significativamente o registro de dados e extraÃ§Ã£o de relatÃ³rio para avaliaÃ§Ã£o de indicadores e GestÃ£o ADM/Financeiro",
+    objetivo: "Facilitar significativamente o registro de dados e extração de relatório para avaliação de indicadores e Gestão ADM/Financeiro",
     atividades: [
       // {
       //   id: 1,
@@ -79,8 +79,8 @@ const PlanoAcao = () => {
           id: Date.now() + idx,
           oque: item.pergunta,
           responsavel: item.responsavel,
-          quando: item.prazo,         // ...
-          como: item.acaoCorretiva,           // ...
+          quando: item.prazo,
+          como: item.acaoCorretiva,
           status: 'Pendente'
         }))
       ]
@@ -157,7 +157,7 @@ const PlanoAcao = () => {
     <Box sx={{ p: 3 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4">PLANO DE Ação</Typography>
+          <Typography variant="h4">PLANO DE AÇÃO</Typography>
           <Button
             variant="contained"
             color="primary"
@@ -174,10 +174,10 @@ const PlanoAcao = () => {
         
         <Box sx={{ display: 'flex', gap: 4, mb: 3 }}>
           <Typography variant="body1">
-            <strong>DATA PREVISÃƒO:</strong> {planData.dataPrevisao}
+            <strong>DATA PREVISÃO:</strong> {planData.dataPrevisao}
           </Typography>
           <Typography variant="body1">
-            <strong>RESPONSÀVEL:</strong> {planData.responsavel}
+            <strong>RESPONSÁVEL:</strong> {planData.responsavel}
           </Typography>
         </Box>
         
@@ -191,12 +191,12 @@ const PlanoAcao = () => {
           <Table sx={{ minWidth: 700 }} aria-label="Plano de Ação">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                <TableCell sx={{ fontWeight: 'bold', width: '18%' }}><strong>O quÃª?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '18%' }}><strong>O quê?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '13%' }}><strong>Quem?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Quando?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '20%' }}><strong>Como?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '10%' }}><strong>Status</strong></TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>AÃ§Ãµes</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Ações</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -209,7 +209,7 @@ const PlanoAcao = () => {
                   }}
                 >
                   <TableCell sx={{ py: 1.5 }}>{atividade.oque}</TableCell>
-                  <TableCell sx={{ py: 1.5 }}>{atividade.responsavel}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.responsavel || atividade.quem}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>{atividade.quando}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>{atividade.como}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>
@@ -268,7 +268,7 @@ const PlanoAcao = () => {
           <Box component="form" sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               fullWidth
-              label="O quÃª?"
+              label="O quê?"
               name="oque"
               value={currentActivity?.oque || ''}
               onChange={handleInputChange}
@@ -281,7 +281,7 @@ const PlanoAcao = () => {
                 fullWidth
                 label="Quem?"
                 name="quem"
-                value={currentActivity?.quem || ''}
+                value={currentActivity?.quem || currentActivity?.responsavel || ''}
                 onChange={handleInputChange}
                 margin="normal"
                 required
