@@ -30,7 +30,7 @@ const initialTemplates = {
     label: 'Inspeções de Segurança',
     verificacoes: [
       "Todos os executantes estão cientes dos riscos mapeados na ART?",
-      "Os trabalhadores estão realizando os EPIs necessários para a realização das atividades?"
+      "Os trabalhadores estão utilizando os EPIs necessários para a realização das atividades?"
     ]
   },
   qualidade: {
