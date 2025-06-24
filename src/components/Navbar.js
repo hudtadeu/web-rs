@@ -40,7 +40,7 @@ const Navbar = ({ isOpen, sidebarWidth, sidebarMinWidth, setSelectedMenu, onLogo
         { id: "ordem-servico", text: "Ordem de Serviço", link: "/ordem-servico" }
       ]
     },
-    { id: "agenda", text: "Cronograma de inspeções", icon: faCalendarAlt, link: "/agenda-inspecoes" },
+    { id: "agenda", text: "Plano de Trabalho", icon: faCalendarAlt, link: "/agenda-inspecoes" },
     { id: "planoacao", text: "Plano de Ação", icon: faTasks, link: "/plano-acao" },
     { id: "controlequip", text: "Controle de Equipamentos", icon: faToolbox, link: "/controle-equipamentos" },
     { id: "armazenamento", text: "Documentos", icon: faFolderOpen, link: "/armazenamento-documentos" },
@@ -100,16 +100,16 @@ const Navbar = ({ isOpen, sidebarWidth, sidebarMinWidth, setSelectedMenu, onLogo
         >
           {isOpen ? (
             <img
-              src="/rsdata-branco-logo.png"
+              src="/conti_branca_transparente.png"
               alt="RS Data Logo Aberta"
               style={{
-                width: "120px",
+                width: "160px",
                 height: "auto",
               }}
             />
           ) : (
             <img
-              src="/rs-branco-logo.png"
+              src="/conti_branca_transparente_cc.png"
               alt="RS Data Logo Fechada"
               style={{
                 width: "30px",
