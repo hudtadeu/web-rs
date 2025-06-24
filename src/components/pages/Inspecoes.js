@@ -1,439 +1,198 @@
 import React, { useState } from "react";
 import {
-  Box,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  TextField,
-  Typography,
-  Paper,
-  Grid,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Card,
-  CardContent,
-  Avatar,
-  Chip,
+  Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
+  TextField, Typography, Paper, Grid, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, FormControlLabel, MenuItem, IconButton
 } from "@mui/material";
-import {
-  PhotoCamera,
-  Delete,
-  Assignment,
-  Today,
-  Warning,
-  Notes,
-  Add,
-  Visibility,
-  Edit,
-} from "@mui/icons-material";
+import { Add, Edit } from "@mui/icons-material";
+
+// Inicia com dois templates de exemplo
+const initialTemplates = {
+  seguranca: {
+    label: 'Inspeções de Segurança',
+    verificacoes: [
+      "Colaborador está utilizando o crachá funcional do cliente em local visível?",
+      "Os colaboradores possuem crachá / cartão com treinamentos de atividades de risco crítico?"
+    ]
+  },
+  qualidade: {
+    label: 'Inspeções de Qualidade',
+    verificacoes: [
+      "Produto atende aos padrões de qualidade especificados?",
+      "Foi realizada a verificação dimensional?"
+    ]
+  }
+};
 
 const Inspecoes = () => {
-  const [form, setForm] = useState({
-    local: "",
-    data: "",
-    epi: false,
-    riscosIdentificados: "",
-    observacoes: "",
-    fotos: [],
-  });
+  // Templates dinâmicos
+  const [templates, setTemplates] = useState(initialTemplates);
+  const [tplModalOpen, setTplModalOpen] = useState(false);
+  const [tplForm, setTplForm] = useState({ key: '', label: '', verificacoes: [''] });
 
+  // Inspeções
+  const [form, setForm] = useState({ type: '', verificacoes: [], catRisco: [], obsVerif: [], anexoVerif: [], acaoImediata: '', desvios: [], participantes: [] });
   const [inspecoes, setInspecoes] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
-  const [viewMode, setViewMode] = useState(false);
-  const [currentInspecao, setCurrentInspecao] = useState(null);
+  const [open, setOpen] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
+  // Inicializa arrays ao selecionar tipo
+  const initArrays = (type) => {
+    const len = templates[type].verificacoes.length;
+    setForm(f => ({
+      ...f,
+      type,
+      verificacoes: Array(len).fill(null),
+      catRisco: Array(len).fill(''),
+      obsVerif: Array(len).fill(''),
+      anexoVerif: Array(len).fill(null)
     }));
   };
 
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setForm((prev) => ({
-      ...prev,
-      fotos: [...prev.fotos, ...files],
+  // Handlers de Inspeção
+  const handleTypeChange = (e) => initArrays(e.target.value);
+  const handleVerifChange = (i,opt) => { const v=[...form.verificacoes]; v[i]=v[i]===opt?null:opt; setForm(f=>({...f,verificacoes:v})); };
+  const handleNested = (field,i,val)=>{ const a=[...form[field]]; a[i]=val; setForm(f=>({...f,[field]:a})); };
+  const handleFile = (i,file)=> handleNested('anexoVerif', i, file);
+  // Reset e salvar Inspeção
+  const reset = ()=> setForm({ type:'', verificacoes:[], catRisco:[], obsVerif:[], anexoVerif:[], acaoImediata:'', desvios:[], participantes:[] });
+  const saveInspecao = ()=>{ setInspecoes(p=>[{ id:Date.now(), ...form },...p]); reset(); setOpen(false); };
+
+  // Handlers de cadastro de template
+  const openTplModal = ()=> setTplModalOpen(true);
+  const addQuestionField = () => setTplForm(f=>({ ...f, verificacoes: [...f.verificacoes, ''] }));
+  const handleTplFieldChange = (i,val)=>{
+    const v=[...tplForm.verificacoes]; v[i]=val;
+    setTplForm(f=>({...f, verificacoes: v}));
+  };
+  const removeTplField = (i)=>{
+    const v=tplForm.verificacoes.filter((_,idx)=>idx!==i);
+    setTplForm(f=>({...f, verificacoes: v}));
+  };
+  const saveTemplate = () => {
+    if(!tplForm.key||!tplForm.label) return;
+    setTemplates(t => ({
+      ...t,
+      [tplForm.key]: { label: tplForm.label, verificacoes: tplForm.verificacoes.filter(q=>q) }
     }));
+    setTplForm({ key:'', label:'', verificacoes:[''] });
+    setTplModalOpen(false);
   };
 
-  const handleRemovePhoto = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      fotos: prev.fotos.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    const novaInspecao = {
-      id: Date.now(),
-      ...form,
-      dataFormatada: new Date(form.data).toLocaleDateString('pt-BR'),
-      status: form.epi ? 'Conforme' : 'Não Conforme'
-    };
-    
-    setInspecoes([novaInspecao, ...inspecoes]);
-    resetForm();
-    setOpenModal(false);
-  };
-
-  const resetForm = () => {
-    setForm({
-      local: "",
-      data: "",
-      epi: false,
-      riscosIdentificados: "",
-      observacoes: "",
-      fotos: [],
-    });
-  };
-
-  const handleDeleteInspecao = (id) => {
-    setInspecoes(inspecoes.filter(inspecao => inspecao.id !== id));
-  };
-
-  const handleViewInspecao = (inspecao) => {
-    setCurrentInspecao(inspecao);
-    setViewMode(true);
-  };
+  const questions = form.type ? templates[form.type].verificacoes : [];
 
   return (
-    <Box sx={{ maxWidth: 1400, margin: "auto", p: 3 }}>
-      {/* Cabeçalho e Botão de Nova Inspeção */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" component="h1">
-          Inspeções de Segurança
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => setOpenModal(true)}
-          sx={{ borderRadius: 2 }}
-        >
-          Nova Inspeção
-        </Button>
+    <Box sx={{ p:3, maxWidth:1400, mx:'auto' }}>
+      <Typography variant="h4">Inspeções</Typography>
+      <Box sx={{ display:'flex', gap:2, my:2 }}>
+        <Button variant="contained" startIcon={<Add />} onClick={()=>setOpen(true)}>Nova Inspeção</Button>
+        <Button variant="outlined" startIcon={<Edit />} onClick={openTplModal}>Gerenciar Templates</Button>
       </Box>
 
-      {/* Modal para Nova Inspeção */}
-      <Dialog
-        open={openModal}
-        onClose={() => {
-          setOpenModal(false);
-          resetForm();
-        }}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Nova Inspeção de Segurança</DialogTitle>
+      {/* Modal Inspeção */}
+      <Dialog open={open} onClose={()=>{reset();setOpen(false);}} fullWidth maxWidth="lg">
+        <DialogTitle>Nova Inspeção</DialogTitle>
         <DialogContent>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ pt: 2 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Local da Inspeção"
-                  name="local"
-                  value={form.local}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Data"
-                  name="data"
-                  type="date"
-                  value={form.data}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      name="epi"
-                      checked={form.epi}
-                      onChange={handleChange}
-                    />
-                  }
-                  label="Todos estão usando EPI?"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Riscos Identificados"
-                  name="riscosIdentificados"
-                  value={form.riscosIdentificados}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                  variant="outlined"
-                  multiline
-                  rows={3}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Observações"
-                  name="observacoes"
-                  value={form.observacoes}
-                  onChange={handleChange}
-                  fullWidth
-                  variant="outlined"
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Registros Fotográficos
-                </Typography>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<PhotoCamera />}
-                  sx={{ mb: 2 }}
-                >
-                  Adicionar Fotos
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                    onChange={handlePhotoUpload}
-                  />
-                </Button>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                  {form.fotos.map((file, idx) => (
-                    <Box key={idx} sx={{ position: "relative" }}>
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`foto-${idx}`}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                          border: "1px solid #ccc",
-                        }}
-                      />
-                      <IconButton
-                        size="small"
-                        color="error"
-                        sx={{ position: "absolute", top: 0, right: 0 }}
-                        onClick={() => handleRemovePhoto(idx)}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              </Grid>
+          <Grid container spacing={2} sx={{ mb:2 }}>
+            <Grid item xs={6} sm={4}>
+              <TextField select label="Tipo" fullWidth value={form.type} onChange={handleTypeChange}>
+                {Object.entries(templates).map(([key,t])=><MenuItem key={key} value={key}>{t.label}</MenuItem>)}
+              </TextField>
             </Grid>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => {
-            setOpenModal(false);
-            resetForm();
-          }}>Cancelar</Button>
-          <Button onClick={handleSubmit} variant="contained">Salvar Inspeção</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Modal para Visualizar Inspeção */}
-      <Dialog
-        open={viewMode}
-        onClose={() => setViewMode(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Detalhes da Inspeção</DialogTitle>
-        <DialogContent>
-          {currentInspecao && (
-            <Box sx={{ pt: 2 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    <strong>Local:</strong> {currentInspecao.local}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    <strong>Data:</strong> {currentInspecao.dataFormatada}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Chip
-                    label={`EPI: ${currentInspecao.epi ? "Sim" : "Não"}`}
-                    color={currentInspecao.epi ? "success" : "error"}
-                    icon={<Assignment />}
-                    sx={{ mb: 2 }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    <strong>Riscos Identificados:</strong>
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    {currentInspecao.riscosIdentificados}
-                  </Typography>
-                </Grid>
-                {currentInspecao.observacoes && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Observações:</strong>
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
-                      {currentInspecao.observacoes}
-                    </Typography>
-                  </Grid>
-                )}
-                {currentInspecao.fotos.length > 0 && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      <strong>Fotos:</strong>
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                      {currentInspecao.fotos.map((foto, idx) => (
-                        <img
-                          key={idx}
-                          src={URL.createObjectURL(foto)}
-                          alt={`foto-${idx}`}
-                          style={{
-                            width: 120,
-                            height: 120,
-                            objectFit: 'cover',
-                            borderRadius: 8,
-                            border: '1px solid #ddd',
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
+            <Grid item xs={6} sm={4}>
+              <TextField label="Ação Imediata" fullWidth multiline rows={2} value={form.acaoImediata}
+                onChange={e=>setForm(f=>({...f,acaoImediata:e.target.value}))} />
+            </Grid>
+          </Grid>
+          {form.type && (
+            <>
+              <Typography variant="subtitle1">VERIFICAÇÕES</Typography>
+              <TableContainer component={Paper} variant="outlined" sx={{ mb:3 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Verificação</TableCell>
+                      {['C','NC','NA'].map(o=><TableCell key={o} align="center">{o}</TableCell>)}
+                      <TableCell>Categoria</TableCell>
+                      <TableCell>Obs</TableCell>
+                      <TableCell>Anexo</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {questions.map((q,i)=>(
+                      <TableRow key={i}>
+                        <TableCell>{q}</TableCell>
+                        {['C','NC','NA'].map(o=><TableCell key={o} align="center">
+                          <Checkbox checked={form.verificacoes[i]===o} onChange={()=>handleVerifChange(i,o)} />
+                        </TableCell>)}
+                        <TableCell>
+                          <TextField size="small" value={form.catRisco[i]||''}
+                            onChange={e=>handleNested('catRisco',i,e.target.value)} />
+                        </TableCell>
+                        <TableCell>
+                          <TextField size="small" value={form.obsVerif[i]||''}
+                            onChange={e=>handleNested('obsVerif',i,e.target.value)} />
+                        </TableCell>
+                        <TableCell>
+                          <Button component="label" size="small">Upload<input type="file" hidden onChange={e=>handleFile(i,e.target.files[0])} /></Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setViewMode(false)}>Fechar</Button>
+          <Button onClick={()=>{reset();setOpen(false);}}>Cancelar</Button>
+          <Button variant="contained" onClick={saveInspecao}>Salvar</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Tabela de Inspeções */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
-        <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-          Histórico de Inspeções
-        </Typography>
-        
-        {inspecoes.length === 0 ? (
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            p: 4,
-            border: '1px dashed #ccc',
-            borderRadius: 2
-          }}>
-            <Assignment sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="body1" color="text.secondary">
-              Nenhuma inspeção registrada ainda.
-            </Typography>
-            <Button 
-              variant="outlined" 
-              startIcon={<Add />} 
-              onClick={() => setOpenModal(true)}
-              sx={{ mt: 2 }}
-            >
-              Criar Primeira Inspeção
-            </Button>
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Local</TableCell>
-                  <TableCell>Data</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Riscos</TableCell>
-                  <TableCell align="center">Ações</TableCell>
+      {/* Modal Templates */}
+      <Dialog open={tplModalOpen} onClose={()=>setTplModalOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Cadastro de Template</DialogTitle>
+        <DialogContent>
+          <TextField label="Chave" fullWidth sx={{ mb:2 }} value={tplForm.key}
+            onChange={e=>setTplForm(f=>({...f,key:e.target.value}))} />
+          <TextField label="Label" fullWidth sx={{ mb:2 }} value={tplForm.label}
+            onChange={e=>setTplForm(f=>({...f,label:e.target.value}))} />
+          <Typography variant="subtitle2">Perguntas</Typography>
+          {tplForm.verificacoes.map((q,i)=>(
+            <Box key={i} sx={{ display:'flex', alignItems:'center', mb:1 }}>
+              <TextField fullWidth value={q} onChange={e=>handleTplFieldChange(i,e.target.value)} size="small" />
+              <Button color="error" onClick={()=>removeTplField(i)}>X</Button>
+            </Box>
+          ))}
+          <Button onClick={addQuestionField}>+ Adicionar Pergunta</Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={()=>setTplModalOpen(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={saveTemplate}>Salvar Template</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Histórico */}
+      <Paper sx={{ mt:3,p:2 }}>
+        <Typography variant="h6">Histórico</Typography>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow><TableCell>ID</TableCell><TableCell>Tipo</TableCell></TableRow>
+            </TableHead>
+            <TableBody>
+              {inspecoes.map(ins=>(
+                <TableRow key={ins.id}>
+                  <TableCell>{ins.id}</TableCell>
+                  <TableCell>{templates[ins.type]?.label}</TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {inspecoes.map((inspecao) => (
-                  <TableRow key={inspecao.id}>
-                    <TableCell>{inspecao.local}</TableCell>
-                    <TableCell>{inspecao.dataFormatada}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={inspecao.status}
-                        color={inspecao.epi ? "success" : "error"}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          display: '-webkit-box', 
-                          WebkitLineClamp: 2, 
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: 300
-                        }}
-                      >
-                        {inspecao.riscosIdentificados}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Tooltip title="Visualizar">
-                        <IconButton 
-                          color="primary"
-                          onClick={() => handleViewInspecao(inspecao)}
-                        >
-                          <Visibility />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Excluir">
-                        <IconButton 
-                          color="error"
-                          onClick={() => handleDeleteInspecao(inspecao.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );
 };
 
-export default Inspecoes;
+export default Inspecoes;
