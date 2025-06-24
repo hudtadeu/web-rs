@@ -29,8 +29,8 @@ const initialTemplates = {
   seguranca: {
     label: 'Inspeções de Segurança',
     verificacoes: [
-      "Colaborador está utilizando o crachá funcional do cliente em local visível?",
-      "Os colaboradores possuem crachá / cartão com os treinamentos de atividades de risco crítico?"
+      "Todos os executantes estão cientes dos riscos mapeados na ART?",
+      "Os trabalhadores estão realizando os EPIs necessários para a realização das atividades?"
     ]
   },
   qualidade: {
@@ -202,7 +202,7 @@ const Inspecoes = () => {
   return (
     <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       <Typography variant="h4">Inspeções</Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, overflowX: "unset" }}>
         <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
           Nova Inspeção
         </Button>
@@ -213,10 +213,10 @@ const Inspecoes = () => {
         </Box>
       </Box>
 
-      <Dialog open={open} onClose={() => { reset(); setOpen(false); }} fullWidth maxWidth="lg">
+      <Dialog open={open} onClose={() => { reset(); setOpen(false); }} fullWidth maxWidth="xl">
         <DialogTitle>Nova Inspeção</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
             <Grid item xs={6} sm={4}>
               <TextField select label="Tipo" fullWidth value={form.type} onChange={handleTypeChange}>
                 {Object.entries(templates).map(([key, t]) => (
@@ -252,14 +252,20 @@ const Inspecoes = () => {
                           </TableCell>
                         ))}
                         <TableCell>
-                          <TextField size="small" fullWidth placeholder="Categoria" value={form.catRisco[i] || ''} onChange={e => handleNested('catRisco', i, e.target.value)} />
-                        </TableCell>
+  <TextField
+    size="small"
+    fullWidth
+    value={templates[form.type].label}
+    InputProps={{ readOnly: true }}
+  />
+</TableCell>
+
                         <TableCell>
                           <TextField size="small" fullWidth placeholder="Observações" value={form.obsVerif[i] || ''} onChange={e => handleNested('obsVerif', i, e.target.value)} />
                         </TableCell>
                         <TableCell>
                           <Button component="label" size="small">
-                            Upload
+                            Imagem
                             <input type="file" hidden onChange={e => handleNested('anexoVerif', i, e.target.files[0])} />
                           </Button>
                         </TableCell>
@@ -341,7 +347,7 @@ const Inspecoes = () => {
       <Dialog open={tplModalOpen} onClose={() => setTplModalOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Cadastro de Template</DialogTitle>
         <DialogContent>
-          <TextField label="Chave" fullWidth sx={{ mb: 2 }} value={tplForm.key} onChange={e => setTplForm(f => ({ ...f, key: e.target.value }))} />
+          <TextField label="Chave" fullWidth sx={{ mb: 2, mt: 2 }} value={tplForm.key} onChange={e => setTplForm(f => ({ ...f, key: e.target.value }))} />
           <TextField label="Label" fullWidth sx={{ mb: 2 }} value={tplForm.label} onChange={e => setTplForm(f => ({ ...f, label: e.target.value }))} />
           <Typography variant="subtitle2">Perguntas</Typography>
           {tplForm.verificacoes.map((q, i) => (
