@@ -202,12 +202,16 @@ const Inspecoes = () => {
   return (
     <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       <Typography variant="h4">Inspeções</Typography>
-      <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)} sx={{ my: 2 }}>
-        Nova Inspeção
-      </Button>
-      <Button variant="outlined" startIcon={<Edit />} onClick={openTplModal}>
-        Gerenciar Templates
-      </Button>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
+          Nova Inspeção
+        </Button>
+        <Box ml={2}>
+          <Button variant="outlined" startIcon={<Edit />} onClick={openTplModal}>
+            Gerenciar Templates
+          </Button>
+        </Box>
+      </Box>
 
       <Dialog open={open} onClose={() => { reset(); setOpen(false); }} fullWidth maxWidth="lg">
         <DialogTitle>Nova Inspeção</DialogTitle>
