@@ -80,7 +80,7 @@ const PlanoAcao = () => {
           oque: item.pergunta,
           responsavel: item.responsavel,
           quando: item.prazo,         // ...
-          como: '',           // ...
+          como: item.acaoCorretiva,           // ...
           status: 'Pendente'
         }))
       ]
@@ -177,7 +177,7 @@ const PlanoAcao = () => {
             <strong>DATA PREVISÃƒO:</strong> {planData.dataPrevisao}
           </Typography>
           <Typography variant="body1">
-            <strong>RESPONSÁVEL:</strong> {planData.responsavel}
+            <strong>RESPONSÀVEL:</strong> {planData.responsavel}
           </Typography>
         </Box>
         
@@ -191,12 +191,12 @@ const PlanoAcao = () => {
           <Table sx={{ minWidth: 700 }} aria-label="Plano de Ação">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                <TableCell sx={{ fontWeight: 'bold', width: '18%' }}><strong>O quê?</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '18%' }}><strong>O quÃª?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '13%' }}><strong>Quem?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Quando?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '20%' }}><strong>Como?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '10%' }}><strong>Status</strong></TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Ações</strong></TableCell>
+                <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>AÃ§Ãµes</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -268,7 +268,7 @@ const PlanoAcao = () => {
           <Box component="form" sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               fullWidth
-              label="O quê?"
+              label="O quÃª?"
               name="oque"
               value={currentActivity?.oque || ''}
               onChange={handleInputChange}
