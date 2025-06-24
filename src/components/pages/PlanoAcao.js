@@ -35,41 +35,42 @@ const PlanoAcao = () => {
     assunto: "Solicitar Consultoria em Produtividade",
     dataPrevisao: "de 03/Jan a 01/Mar",
     responsavel: "Setor Administrativo/Financeiro",
-    objetivo: "Facilitar significativamente o registro de dados e extração de relatório para avaliação de indicadores e Gestão ADM/Financeiro",
+    objetivo: "Facilitar significativamente o registro de dados e extraÃ§Ã£o de relatÃ³rio para avaliaÃ§Ã£o de indicadores e GestÃ£o ADM/Financeiro",
     atividades: [
-      {
-        id: 1,
-        oque: "Solicitar propostas de valor em Produtividade",
-        quem: "Analista",
-        quando: "3 - Jan",
-        como: "Pesquisa sites especializados",
-        custo: "Varia de 100 - 1000 reais cada solicitação",
-        status: "Feito"
-      },
-      {
-        id: 2,
-        oque: "Avaliar propostas",
-        quem: "Analista/Gestor",
-        quando: "até 10/Jan",
-        como: "Via chamada de vídeo, presencial e consulta material recebido",
-        custo: "Estimado no início",
-        status: "Feito"
-      },
-      {
-        id: 3,
-        oque: "Decisão proposta adequada",
-        quem: "Analista/Gestor",
-        quando: "até 17/Jan",
-        como: "Avaliando a metodologia de registro presente e as melhorias propostas",
-        custo: "Estimado no início",
-        status: "Fazendo"
-      }
+      // {
+      //   id: 1,
+      //   oque: "Solicitar propostas de valor em Produtividade",
+      //   quem: "Analista",
+      //   quando: "3 - Jan",
+      //   como: "Pesquisa sites especializados",
+      //   custo: "Varia de 100 - 1000 reais cada solicitaÃ§Ã£o",
+      //   status: "Feito"
+      // },
+      // {
+      //   id: 2,
+      //   oque: "Avaliar propostas",
+      //   quem: "Analista/Gestor",
+      //   quando: "atÃ© 10/Jan",
+      //   como: "Via chamada de vÃ­deo, presencial e consulta material recebido",
+      //   custo: "Estimado no inÃ­cio",
+      //   status: "Feito"
+      // },
+      // {
+      //   id: 3,
+      //   oque: "DecisÃ£o proposta adequada",
+      //   quem: "Analista/Gestor",
+      //   quando: "atÃ© 17/Jan",
+      //   como: "Avaliando a metodologia de registro presente e as melhorias propostas",
+      //   custo: "Estimado no inÃ­cio",
+      //   status: "Fazendo"
+      // }
     ]
   });
 
   
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('planActions') || '[]');
+    console.log(saved);
     setPlanData(prev => ({
       ...prev,
       atividades: [
@@ -77,10 +78,9 @@ const PlanoAcao = () => {
         ...saved.map((item, idx) => ({
           id: Date.now() + idx,
           oque: item.pergunta,
-          responsavel: '',    // preencher conforme necessidade
-          quando: '',         // ...
+          responsavel: item.responsavel,
+          quando: item.prazo,         // ...
           como: '',           // ...
-          custo: '',
           status: 'Pendente'
         }))
       ]
@@ -157,7 +157,7 @@ const PlanoAcao = () => {
     <Box sx={{ p: 3 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4">PLANO DE AÇÃO</Typography>
+          <Typography variant="h4">PLANO DE Ação</Typography>
           <Button
             variant="contained"
             color="primary"
@@ -174,7 +174,7 @@ const PlanoAcao = () => {
         
         <Box sx={{ display: 'flex', gap: 4, mb: 3 }}>
           <Typography variant="body1">
-            <strong>DATA PREVISÃO:</strong> {planData.dataPrevisao}
+            <strong>DATA PREVISÃƒO:</strong> {planData.dataPrevisao}
           </Typography>
           <Typography variant="body1">
             <strong>RESPONSÁVEL:</strong> {planData.responsavel}
@@ -195,7 +195,6 @@ const PlanoAcao = () => {
                 <TableCell sx={{ fontWeight: 'bold', width: '13%' }}><strong>Quem?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Quando?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '20%' }}><strong>Como?</strong></TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '15%' }}><strong>Custo?</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '10%' }}><strong>Status</strong></TableCell>
                 <TableCell sx={{ fontWeight: 'bold', width: '12%' }}><strong>Ações</strong></TableCell>
               </TableRow>
@@ -210,10 +209,9 @@ const PlanoAcao = () => {
                   }}
                 >
                   <TableCell sx={{ py: 1.5 }}>{atividade.oque}</TableCell>
-                  <TableCell sx={{ py: 1.5 }}>{atividade.quem}</TableCell>
+                  <TableCell sx={{ py: 1.5 }}>{atividade.responsavel}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>{atividade.quando}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>{atividade.como}</TableCell>
-                  <TableCell sx={{ py: 1.5 }}>{atividade.custo}</TableCell>
                   <TableCell sx={{ py: 1.5 }}>
                     <Chip 
                       label={atividade.status} 

@@ -60,17 +60,14 @@ const Login = ({ onLogin, setSelectedMenu }) => {
         }}
       >
         <img
-          src="logo-rsdata.png"
+          src="conti_transparente.png"
           alt="Logo RSData"
           style={{
             width: "150px",
-            marginBottom: "20px",
+            marginBottom: "10px",
           }}
         />
         <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: "600", color: "#333" }}>
-            Bem-vindo ao RSData
-          </Typography>
           <Typography variant="body2" gutterBottom sx={{ color: "#666", mb: 3 }}>
             Faça login para continuar
           </Typography>
