@@ -23,8 +23,6 @@ import {
 } from "@mui/material";
 import { Add, Edit, Delete } from "@mui/icons-material";
 
-
-// Templates de perguntas por tipo de inspeção
 const initialTemplates = {
   seguranca: {
     label: 'Inspeções de Segurança',
