@@ -211,18 +211,28 @@ const Inspecoes = () => {
         </Box>
       </Box>
 
-      <Dialog open={open} onClose={() => { reset(); setOpen(false); }} fullWidth maxWidth="xl">
+      <Dialog 
+        open={open} 
+        onClose={() => { reset(); setOpen(false); }} 
+        fullWidth 
+        maxWidth="xl"
+        sx={{
+          '& .MuiDialog-paper': {
+            height: '90vh',
+            maxHeight: '90vh'
+          }
+        }}
+      >
         <DialogTitle>Nova Inspeção</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ overflow: 'visible', pb: 0 }}>
           <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
-            <Grid item xs={6} sm={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField select label="Tipo" fullWidth value={form.type} onChange={handleTypeChange}>
                 {Object.entries(templates).map(([key, t]) => (
                   <MenuItem key={key} value={key}>{t.label}</MenuItem>
                 ))}
               </TextField>
             </Grid>
-            {/* Campo "Ação Imediata" removido — agora cada verificação tem sua própria ação corretiva */}
           </Grid>
 
           {form.type && (
